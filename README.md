@@ -54,10 +54,11 @@ The Route Planner Frontend is a web application that enables users to calculate 
    cd Buildathon
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies & build:**
 
    ```bash
    npm install
+   npm run build
    ```
 
 3. **Set up environment variables:**
