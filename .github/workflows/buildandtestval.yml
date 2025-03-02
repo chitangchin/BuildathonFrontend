@@ -1,6 +1,10 @@
 name: CI Build and Test Validation
 
 on:
+  push:
+    branches:
+      - prod
+      - dev
   pull_request:
     branches:
       - prod
