@@ -28,7 +28,7 @@ const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 /*                             AudioPlayer Component                          */
 /* -------------------------------------------------------------------------- */
 
-function AudioPlayer({ url }: { url: string }) {
+export function AudioPlayer({ url }: { url: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
