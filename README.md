@@ -23,45 +23,59 @@ The Route Planner Frontend is a web application that enables users to calculate 
 - **State Management:** (Specify if using Context API, Redux, or other state management libraries)
 - **API Integration:** Communication with the backend Flask API
 
-## Demo
+## Demo for desktop/laptop
 
-1. Add the start and end destination:
-
-![2025-03-0122-32-34-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/9a5b24cf-6ac5-4a90-9aec-33201e65470a)
+1. Add the start and end destination, view some point of interests on the map:
+   
+![2025-03-0209-31-54-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/f023f964-4ff8-4870-8404-3e2356e6eee5)
 
 2. Choose which landmarks/point of interests you want to learn more about
 
-![2025-03-0122-32-34-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/2cb695d5-f352-40cb-a025-ebf6dbb3c42d)
+![2025-03-0209-31-54-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/09000eca-dd6d-498e-849f-5548e5cb56bb)
 
-3. Listen about the historical impact and description of the landmark/point of interests
+3. Have full control in listening to the description
 
-![2025-03-0122-32-34-ezgif com-video-to-gif-converter (2)](https://github.com/user-attachments/assets/430db20f-4e26-49bf-9757-fc549f9ee701)
+![2025-03-0209-31-54-ezgif com-video-to-gif-converter (2)](https://github.com/user-attachments/assets/485b478b-d2bf-419b-9d56-013b1d295895)
+
+## Demo for mobile: **Pixel 7 Dimensions**
+
+1. Add the start and end destination, view some point of interests on the map:
+
+![2025-03-0209-34-12-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/e14646d0-27df-4b64-bdcb-1e80cd55fc2c)
+
+2. Choose the landmark/point of interest you are interested in
+
+![2025-03-0209-34-12-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/63eab5cd-f2cc-4ca7-bd56-a0c2857b2047)
+
+3. Have full control in mobile
+
+![2025-03-0209-34-12-ezgif com-video-to-gif-converter (2)](https://github.com/user-attachments/assets/0c2a40dc-333b-4ad8-bc12-c4d2bdbc0fb7)
 
 ## Installation & Setup
 
 ### Prerequisites
 
-- Node.js (v14 or later)
+- Node.js (23.x)
 - npm
-- API keys for mapping services (if applicable)
-
+- API key for google map
 ### Steps
+1. [**Fork the repository:**](https://github.com/chitangchin/BuildathonFrontend/fork)
 
-1. **Clone the repository:**
+2. **Clone the repository:**
 
    ```bash
    git clone https://github.com/craftingweb/Buildathon.git
    cd Buildathon
    ```
 
-2. **Install dependencies & build:**
+3. **Install dependencies & build:**
 
    ```bash
    npm install
    npm run build
    ```
 
-3. **Set up environment variables:**
+4. **Set up environment variables:**
 
    Create a `.env.local` file in the project root with the following variables:
 
@@ -69,7 +83,7 @@ The Route Planner Frontend is a web application that enables users to calculate 
    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=xxxxx
    ```
 
-4. **Run the development server:**
+5. **Run the development server:**
 
    ```bash
    npm run dev
@@ -77,31 +91,9 @@ The Route Planner Frontend is a web application that enables users to calculate 
 
    The application will be available at `http://localhost:3000/`.
 
-5. **Run the backend server:**
+5. **Run the backend server locally:**
 
 The repo is available at: [BuildathonBackend](https://github.com/chitangchin/BuildathonBackend)
-
-## Project Structure
-
-```
-Buildathon/
-├── app/                     # Application-specific configurations
-├── components/              # Reusable UI components
-├── hooks/                   # Custom React hooks
-├── lib/                     # Library utilities
-├── public/                  # Static assets
-├── styles/                  # Styling files (CSS, Tailwind configurations)
-├── types/                   # TypeScript type definitions
-├── .gitignore               # Git ignore file
-├── components.json          # (Specify the purpose of this file)
-├── flatiron_building_.mp3   # Sample audio file
-├── next.config.mjs          # Next.js configuration
-├── package-lock.json        # Lockfile for npm
-├── package.json             # Project dependencies and scripts
-├── postcss.config.mjs       # PostCSS configuration
-├── tailwind.config.js       # Tailwind CSS configuration
-└── tsconfig.json            # TypeScript configuration
-```
 
 ## API Integration
 
@@ -159,20 +151,7 @@ The frontend interacts with the backend Flask API to fetch route details and aud
    ```
 
    Ensure that the environment variables are set appropriately for production.
-
-### Docker Deployment
-
-1. **Create a `Dockerfile`:**
-
-   (Provide the Dockerfile content if available)
-
-2. **Build and run the Docker container:**
-
-   ```bash
-   docker build -t route-planner-frontend .
-   docker run -p 3000:3000 route-planner-frontend
-   ```
-
+   
 ## Contributing
 
 1. Fork the repository
@@ -180,9 +159,3 @@ The frontend interacts with the backend Flask API to fetch route details and aud
 3. Commit your changes (`git commit -m 'Add your feature'`)
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
----
