@@ -41,18 +41,20 @@ export default function MapRoute() {
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Track clicked cards (by place_id)
+  const [clickedCards, setClickedCards] = useState<{ [key: string]: boolean }>({});
+  // Store audio URLs per POI (by place_id)
+  const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
+  // Track if audio is loading per POI
+  const [loadingAudio, setLoadingAudio] = useState<{ [key: string]: boolean }>({});
+
   const mapRef = useRef<HTMLDivElement>(null);
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
 
   /* -------------------------------------------------------------------------- */
   /*                               useEffect Hook                               */
-  /*         Loads the Google Maps API and initializes map/services/etc.         */
   /* -------------------------------------------------------------------------- */
-
-  useEffect(() => {
-    pointsOfInterest.map(point => fetchAudio(point));
-  }, [pointsOfInterest])
 
   useEffect(() => {
     const loader = new Loader({
@@ -101,67 +103,67 @@ export default function MapRoute() {
   }, []);
 
   /* -------------------------------------------------------------------------- */
-  /*                                Helper Functions                             */
+  /*                                Helper Functions                            */
   /* -------------------------------------------------------------------------- */
 
-//replace sapce with underscore
-
+  // Helper to replace spaces with underscores for the API call
   const nameParser = (poi: any) => {
-    console.log(poi.name);
     return poi.name.split(" ").join("_");
-  }
+  };
 
-  const fetchAudio = async (place: string) => {
-    let poi = nameParser(place)
-    await fetch(`http://127.0.0.1:3100/get-location-info?place=${poi}`)
-    .then(response => response)
-    .then(data => console.log(data.json()))
-    // .then(blob => {
-    //   const audioUrl = URL.createObjectURL(blob);
-    //   const audioElement = new Audio(audioUrl);
-    //   audioElement.play();
-    // });
-  }
+  // Fetch audio for a specific POI and store the audio URL for playback.
+  const fetchAudio = async (poi: any) => {
+    const poiName = nameParser(poi);
+    try {
+      const response = await fetch(`http://127.0.0.1:3100/get-location-audio?place=${poiName}`);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setAudioUrls(prev => ({ ...prev, [poi.place_id]: url }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  // Click handler for POI cards that triggers audio download (with loading indicator)
+  const handleCardClick = async (poi: any) => {
+    if (clickedCards[poi.place_id]) return;
 
-  // Extracts a detailed list of LatLng points from the DirectionsRoute.
+    // Mark card as clicked and set loading flag
+    setClickedCards(prev => ({ ...prev, [poi.place_id]: true }));
+    setLoadingAudio(prev => ({ ...prev, [poi.place_id]: true }));
+
+    await fetchAudio(poi);
+    setLoadingAudio(prev => ({ ...prev, [poi.place_id]: false }));
+  };
+
+  // Extract detailed LatLng points from a DirectionsRoute.
   function getRoutePathPoints(route: google.maps.DirectionsRoute): google.maps.LatLng[] {
     const points: google.maps.LatLng[] = [];
-    route?.legs?.forEach((leg) => {
-      leg?.steps?.forEach((step) => {
-        step.path?.forEach((point) => {
-          points.push(point);
-        });
+    route?.legs?.forEach(leg => {
+      leg?.steps?.forEach(step => {
+        step.path?.forEach(point => points.push(point));
       });
     });
     return points;
   }
 
-  // Finds points of interest along a given route.
+  // Find points of interest along a given route.
   async function findPointsOfInterest(route: google.maps.DirectionsRoute) {
     if (!placesService || !map) return;
 
-    // Get detailed path points
     const routePoints = getRoutePathPoints(route);
-
-    // If we don't have enough detail, fall back to overview path
     const pathPoints = routePoints.length > 10 ? routePoints : route.overview_path;
 
     const allPOIs: any[] = [];
     const newMarkers: google.maps.Marker[] = [];
 
-    // Create a polyline for distance checks
-    const routePath = new google.maps.Polyline({
-      path: pathPoints,
-      geodesic: true,
-    });
+    // Create a polyline for distance checks.
+    const routePath = new google.maps.Polyline({ path: pathPoints, geodesic: true });
+    const MAX_DISTANCE_FROM_ROUTE = 1000; // in meters
 
-    // Maximum allowed distance from route (in meters)
-    const MAX_DISTANCE_FROM_ROUTE = 1000;
-
-    // Sample the route at intervals for searching
+    // Sample the route at intervals.
     const routeLength = route.legs.reduce((sum, leg) => sum + (leg.distance?.value || 0), 0);
-    const numPoints = Math.max(3, Math.floor(routeLength / 10000)); // 1 sample each 10km, min 3
+    const numPoints = Math.max(3, Math.floor(routeLength / 10000));
     const searchPoints: google.maps.LatLng[] = [];
 
     for (let i = 0; i < numPoints; i++) {
@@ -170,33 +172,27 @@ export default function MapRoute() {
       searchPoints.push(routePoints[routeIndex]);
     }
 
-    // Perform a placesService.nearbySearch at each sample point
-    const searchPromises = searchPoints.map((point) => {
-      return new Promise<void>((resolve) => {
+    // Search for POIs near each sample point.
+    const searchPromises = searchPoints.map(point => {
+      return new Promise<void>(resolve => {
         const request: google.maps.places.PlaceSearchRequest = {
           location: point,
           radius: 2000, // 2km radius
-          type: "tourist_attraction", // or any other type
+          type: "tourist_attraction",
         };
 
         placesService.nearbySearch(request, (results, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            results.forEach((place) => {
+            results.forEach(place => {
               if (!place.geometry?.location) return;
+              if (allPOIs.some(poi => poi.place_id === place.place_id)) return;
 
-              // Avoid duplicates
-              if (allPOIs.some((poi) => poi.place_id === place.place_id)) {
-                return;
-              }
-
-              // Check if the place is within our route corridor
               const isOnRoute = google.maps.geometry.poly.isLocationOnEdge(
                 place.geometry.location,
                 routePath,
-                MAX_DISTANCE_FROM_ROUTE / 1e6 // degrees approximation
+                MAX_DISTANCE_FROM_ROUTE / 1e6
               );
 
-              // Create a marker if it's close to the route
               if (isOnRoute) {
                 allPOIs.push(place);
 
@@ -205,20 +201,16 @@ export default function MapRoute() {
                   map,
                   title: place.name,
                   icon: {
-                    url: place.icon ?? "", // Fallback to empty if undefined
+                    url: place.icon ?? "",
                     scaledSize: new google.maps.Size(24, 24),
-                  },                  
+                  },
                 });
 
-                // Info window
                 const infoWindow = new google.maps.InfoWindow({
                   content: `<div><strong>${place.name}</strong><br>${place.vicinity}</div>`,
                 });
 
-                marker.addListener("click", () => {
-                  infoWindow.open(map, marker);
-                });
-
+                marker.addListener("click", () => infoWindow.open(map, marker));
                 newMarkers.push(marker);
               }
             });
@@ -234,17 +226,19 @@ export default function MapRoute() {
     setIsLoading(false);
   }
 
-  // Calculates a walking route between Start and End inputs, then finds POIs.
+  // Calculates a walking route between start and destination, then finds POIs.
   function calculateRoute() {
-    // Ensure we have everything needed
     if (!directionsService || !directionsRenderer || !placesService) return;
     if (!startInputRef.current || !endInputRef.current) return;
 
-    // Reset loading & data
     setIsLoading(true);
-    markers.forEach((marker) => marker.setMap(null));
+    markers.forEach(marker => marker.setMap(null));
     setMarkers([]);
     setPointsOfInterest([]);
+    // Reset audio-related states.
+    setClickedCards({});
+    setAudioUrls({});
+    setLoadingAudio({});
 
     const startValue = startInputRef.current.value;
     const endValue = endInputRef.current.value;
@@ -255,7 +249,6 @@ export default function MapRoute() {
       return;
     }
 
-    // Request route
     directionsService.route(
       {
         origin: startValue,
@@ -276,50 +269,35 @@ export default function MapRoute() {
   }
 
   /* -------------------------------------------------------------------------- */
-  /*                                   Render                                    */
+  /*                                   Render                                   */
   /* -------------------------------------------------------------------------- */
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      {/* Left panel */}
+      {/* Left Panel */}
       <div className="w-full md:w-1/3 p-4 overflow-y-auto">
-        {/* Header / Input Section */}
+        {/* Header & Input */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-4">Route Planner</h1>
           <div className="space-y-4">
-            {/* Starting Point */}
             <div className="space-y-2">
               <label htmlFor="start" className="block text-sm font-medium">
                 Starting Point
               </label>
               <div className="relative">
                 <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="start"
-                  ref={startInputRef}
-                  placeholder="Enter starting location"
-                  className="pl-8"
-                />
+                <Input id="start" ref={startInputRef} placeholder="Enter starting location" className="pl-8" />
               </div>
             </div>
-
-            {/* Destination */}
             <div className="space-y-2">
               <label htmlFor="destination" className="block text-sm font-medium">
                 Destination
               </label>
               <div className="relative">
                 <Navigation className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="destination"
-                  ref={endInputRef}
-                  placeholder="Enter destination"
-                  className="pl-8"
-                />
+                <Input id="destination" ref={endInputRef} placeholder="Enter destination" className="pl-8" />
               </div>
             </div>
-
-            {/* Calculate Button */}
             <Button onClick={calculateRoute} className="w-full" disabled={isLoading}>
               {isLoading ? "Calculating..." : "Calculate Route"}
             </Button>
@@ -334,9 +312,7 @@ export default function MapRoute() {
             <Search className="mr-2 h-5 w-5" />
             Points of Interest
             {pointsOfInterest.length > 0 && (
-              <span className="ml-2 text-sm text-muted-foreground">
-                ({pointsOfInterest.length})
-              </span>
+              <span className="ml-2 text-sm text-muted-foreground">({pointsOfInterest.length})</span>
             )}
           </h2>
 
@@ -345,7 +321,11 @@ export default function MapRoute() {
           ) : pointsOfInterest.length > 0 ? (
             <div className="space-y-3">
               {pointsOfInterest.map((poi, index) => (
-                <Card key={poi.place_id || index} className="overflow-hidden">
+                <Card
+                  key={poi.place_id || index}
+                  onClick={() => handleCardClick(poi)}
+                  className={`overflow-hidden cursor-pointer ${clickedCards[poi.place_id] ? "bg-gray-100" : ""}`}
+                >
                   <CardContent className="p-3">
                     <div>
                       <h3 className="font-medium">{poi.name}</h3>
@@ -356,9 +336,7 @@ export default function MapRoute() {
                             {Array.from({ length: 5 }).map((_, i) => (
                               <svg
                                 key={i}
-                                className={`w-4 h-4 ${
-                                  i < Math.floor(poi.rating) ? "text-yellow-400" : "text-gray-300"
-                                }`}
+                                className={`w-4 h-4 ${i < Math.floor(poi.rating) ? "text-yellow-400" : "text-gray-300"}`}
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                               >
@@ -371,6 +349,31 @@ export default function MapRoute() {
                           </span>
                         </div>
                       )}
+
+                      {/* Render a loading indicator or Play Audio button */}
+                      {clickedCards[poi.place_id] && loadingAudio[poi.place_id] && (
+                        <div className="mt-2">
+                          <Button size="sm" disabled>
+                            Loading Audio...
+                          </Button>
+                        </div>
+                      )}
+                      {clickedCards[poi.place_id] &&
+                        !loadingAudio[poi.place_id] &&
+                        audioUrls[poi.place_id] && (
+                          <div className="mt-2">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const audio = new Audio(audioUrls[poi.place_id]);
+                                audio.play();
+                              }}
+                            >
+                              Play Audio
+                            </Button>
+                          </div>
+                        )}
                     </div>
                   </CardContent>
                 </Card>
@@ -384,7 +387,7 @@ export default function MapRoute() {
         </div>
       </div>
 
-      {/* Right panel - Map */}
+      {/* Right Panel - Map */}
       <div className="w-full md:w-2/3 h-[50vh] md:h-screen">
         <div data-testid="map-container" ref={mapRef} className="w-full h-full" />
       </div>
