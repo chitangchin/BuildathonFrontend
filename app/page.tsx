@@ -386,7 +386,7 @@ export default function MapRoute() {
 
       {/* Right panel - Map */}
       <div className="w-full md:w-2/3 h-[50vh] md:h-screen">
-        <div ref={mapRef} className="w-full h-full" />
+        <div data-testid="map-container" ref={mapRef} className="w-full h-full" />
       </div>
     </div>
   );
