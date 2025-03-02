@@ -26,8 +26,8 @@ The Route Planner Frontend is a web application that enables users to calculate 
 ### Prerequisites
 
 - Node.js (v14 or later)
-- npm or yarn package manager
-- API keys for mapping services (if applicable)
+- npm
+- API keys for google maps
 
 ### Steps
 
