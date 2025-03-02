@@ -1,4 +1,4 @@
-# WorkingOnProjName
+# POINT
 
 [![CI Build and Test Validation](https://github.com/chitangchin/BuildathonFrontend/actions/workflows/buildandtestval.yml/badge.svg)](https://github.com/chitangchin/BuildathonFrontend/actions/workflows/buildandtestval.yml)
 
