@@ -355,7 +355,7 @@ export default function MapRoute() {
       <div className="w-full md:w-1/3 p-4 overflow-y-auto">
         {/* Header & Input */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-4">Route Planner</h1>
+          <h1 className="text-2xl font-bold mb-4">POINT</h1>
           <div className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="start" className="block text-sm font-medium">
