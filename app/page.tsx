@@ -25,6 +25,83 @@ declare global {
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 /* -------------------------------------------------------------------------- */
+/*                             AudioPlayer Component                          */
+/* -------------------------------------------------------------------------- */
+
+export function AudioPlayer({ url }: { url: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Helper function to format seconds as mm:ss
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const setAudioDuration = () => setDuration(audio.duration);
+
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", setAudioDuration);
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", setAudioDuration);
+    };
+  }, [url]);
+
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  return (
+    <div className="mt-2">
+      <audio ref={audioRef} src={url} preload="metadata" />
+      <div className="flex items-center space-x-2">
+        <Button size="sm" onClick={togglePlay}>
+          {isPlaying ? "Pause" : "Play"}
+        </Button>
+        <input
+          type="range"
+          min={0}
+          max={duration}
+          value={currentTime}
+          step={0.1}
+          onChange={handleSliderChange}
+          className="w-full"
+        />
+        <span className="text-xs">
+          {formatTime(currentTime)}/{formatTime(duration)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                Main Component                              */
 /* -------------------------------------------------------------------------- */
 
@@ -350,7 +427,7 @@ export default function MapRoute() {
                         </div>
                       )}
 
-                      {/* Render a loading indicator or Play Audio button */}
+                      {/* Render audio control UI if audio has been loaded */}
                       {clickedCards[poi.place_id] && loadingAudio[poi.place_id] && (
                         <div className="mt-2">
                           <Button size="sm" disabled>
@@ -361,18 +438,7 @@ export default function MapRoute() {
                       {clickedCards[poi.place_id] &&
                         !loadingAudio[poi.place_id] &&
                         audioUrls[poi.place_id] && (
-                          <div className="mt-2">
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const audio = new Audio(audioUrls[poi.place_id]);
-                                audio.play();
-                              }}
-                            >
-                              Play Audio
-                            </Button>
-                          </div>
+                          <AudioPlayer url={audioUrls[poi.place_id]} />
                         )}
                     </div>
                   </CardContent>
