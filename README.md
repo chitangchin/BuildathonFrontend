@@ -1,10 +1,10 @@
-# Route Planner Frontend
+# WorkingOnProjName
 
 [![CI Build and Test Validation](https://github.com/chitangchin/BuildathonFrontend/actions/workflows/buildandtestval.yml/badge.svg)](https://github.com/chitangchin/BuildathonFrontend/actions/workflows/buildandtestval.yml)
 
 ## Overview
 
-The Route Planner Frontend is a web application that enables users to calculate routes between a starting point and a destination, displaying points of interest (POIs) along the way. Users can also listen to audio descriptions of select locations.
+When people travel, they often miss out on fascinating landmarks or local points of interest, or they simply wish they’d known more about them beforehand. Our app fixes that by tracking every noteworthy spot along your route and providing you with a deep dive into its history. Whether it’s a well-known sight or a hidden gem, we’ll make sure you’re fully immersed in the story behind it—so you can get the most out of your journey, every step of the way.
 
 ## Features
 
