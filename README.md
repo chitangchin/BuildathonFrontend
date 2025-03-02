@@ -1,5 +1,7 @@
 # Route Planner Frontend
 
+[![CI Build and Test Validation](https://github.com/chitangchin/BuildathonFrontend/actions/workflows/buildandtestval.yml/badge.svg)](https://github.com/chitangchin/BuildathonFrontend/actions/workflows/buildandtestval.yml)
+
 ## Overview
 
 The Route Planner Frontend is a web application that enables users to calculate routes between a starting point and a destination, displaying points of interest (POIs) along the way. Users can also listen to audio descriptions of select locations.
