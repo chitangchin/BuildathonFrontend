@@ -10,18 +10,16 @@ When people travel, they often miss out on fascinating landmarks or local points
 
 - **Route Calculation:** Input a starting location and destination to compute the optimal route.
 - **Points of Interest Display:** View notable locations along the route with relevant details.
-- **Audio Playback:** Listen to descriptions of select POIs.
+- **Audio Playback:** Listen to descriptions of select POIs (Points of Interest).
 - **Interactive Map:** Visual representation of routes and POIs using a mapping service.
 - **Responsive Design:** Optimized for various devices and screen sizes.
 
 ## Technologies Used
 
-- **Frontend Framework:** Next.js (React-based framework)
-- **TypeScript:** For type-safe JavaScript development
+- **Frontend Framework:** Next.js with TypeScript
 - **Styling:** Tailwind CSS
-- **Mapping Library:** (Specify the mapping service used, e.g., Google Maps API or Mapbox)
-- **State Management:** (Specify if using Context API, Redux, or other state management libraries)
-- **API Integration:** Communication with the backend Flask API
+- **Mapping Library:** Google Maps API
+- **API Integration:** Flask
 
 ## Demo for desktop/laptop
 
@@ -33,7 +31,7 @@ When people travel, they often miss out on fascinating landmarks or local points
 
 ![2025-03-0209-31-54-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/09000eca-dd6d-498e-849f-5548e5cb56bb)
 
-3. Have full control in listening to the description
+3. Have full control of the audio description
 
 ![2025-03-0209-31-54-ezgif com-video-to-gif-converter (2)](https://github.com/user-attachments/assets/485b478b-d2bf-419b-9d56-013b1d295895)
 
@@ -47,7 +45,7 @@ When people travel, they often miss out on fascinating landmarks or local points
 
 ![2025-03-0209-34-12-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/63eab5cd-f2cc-4ca7-bd56-a0c2857b2047)
 
-3. Have full control in mobile
+3. Have full control of the audio description in mobile
 
 ![2025-03-0209-34-12-ezgif com-video-to-gif-converter (2)](https://github.com/user-attachments/assets/0c2a40dc-333b-4ad8-bc12-c4d2bdbc0fb7)
 
@@ -56,16 +54,17 @@ When people travel, they often miss out on fascinating landmarks or local points
 ### Prerequisites
 
 - Node.js (23.x)
-- npm
 - API key for google map
+- Visual Studio Code
+  
 ### Steps
 1. [**Fork the repository:**](https://github.com/chitangchin/BuildathonFrontend/fork)
 
 2. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/craftingweb/Buildathon.git
-   cd Buildathon
+   git clone https://github.com/{YourUserName}/POINT.git
+   cd POINT
    ```
 
 3. **Install dependencies & build:**
@@ -97,7 +96,7 @@ The repo is available at: [BuildathonBackend](https://github.com/chitangchin/Bui
 
 ## API Integration
 
-The frontend interacts with the backend Flask API to fetch route details and audio descriptions.
+The frontend interacts with the backend Flask API to fetch server health, route details, and the audio file.
 
 ### Checking the health of the backend server
 
@@ -149,13 +148,3 @@ The frontend interacts with the backend Flask API to fetch route details and aud
    ```bash
    npm start
    ```
-
-   Ensure that the environment variables are set appropriately for production.
-   
-## Contributing
-
-1. Fork the repository
-2. Create a new feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
